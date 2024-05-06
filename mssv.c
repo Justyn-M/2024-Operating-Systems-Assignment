@@ -3,7 +3,7 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-#include "sudoku.h"
+#include "mssv.h"
 
 // Declaring the sudoku grid and counter
 extern int sudoku[GRID][GRID];
