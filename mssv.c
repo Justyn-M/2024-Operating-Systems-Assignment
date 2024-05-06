@@ -1,12 +1,10 @@
-#include <stdio.h>
 #include <pthread.h>
-#include <stdbool.h>
 #include <unistd.h>
-
+#include <stdbool.h>
 #include "mssv.h"
 
 // Declaring the sudoku grid and counter
-extern int sudoku[GRID][GRID];
+extern int Sudoku[GRID][GRID];
 extern int Row[GRID], Col[GRID], Sub[GRID];
 extern int Counter;
 
@@ -18,7 +16,7 @@ extern int thread_State[TOTAL_THREADS];
 extern int finished_threads;
 
 // Function to validate the grid
-bool grid_validator(int *set) {
+bool validate_set(int *set) {
     bool seen[GRID + 1] = {0};
     for (int i = 0; i < GRID; i++) {
         if (seen[set[i]] || set[i] < 1 || set[i] > GRID)
@@ -30,90 +28,80 @@ bool grid_validator(int *set) {
 
 // Function to validate sudoku rows and subgrid
 void* row_subgrid_validator(void* param) {
-    // Thread Index
-    int index = *(int*)param;
-    int row_start = index * 3;
-    bool _valid = true;
+    int idx = (int)(long)param;
+    int rowStart = idx * 3;
+    bool isValid = true;
 
     // Validating rows
-    for (int i = row_start; i < row_start + 3; i++) {
-        if (grid_validator(sudoku[i])) {
+    for (int i = rowStart; i < rowStart + 3; i++) {
+        if (validate_set(Sudoku[i])) {
             pthread_mutex_lock(&mutex);
             Row[i] = 1;
             Counter++;
             pthread_mutex_unlock(&mutex);
-        }
-        else {
-            _valid = false;
-            break;
+        } else {
+            isValid = false;
         }
     }
 
     // Validating subgrids start here
-    for (int x = index * 3; x < (index + 1) * 3; x++) {
+    for (int sg = idx * 3; sg < (idx + 1) * 3; sg++) {
         // Subgrid starting row and column
-        int xRow = (x / 3) * 3;
-        int xCol = (x % 3) * 3;
+        int sgRow = (sg / 3) * 3;
+        int sgCol = (sg % 3) * 3;
         int subgrid[GRID];
-        int p = 0;
+        int k = 0;
 
         // Extracting subgrid
-        for (int i = xRow; i < xRow + 3; i++) {
-            for (int j = xCol; j < xCol + 3; j++) {
-                subgrid[p++] = sudoku[i][j];
+        for (int i = sgRow; i < sgRow + 3; i++) {
+            for (int j = sgCol; j < sgCol + 3; j++) {
+                subgrid[k++] = Sudoku[i][j];
             }
         }
         // subgrid validation
-        if (grid_validator(subgrid)) {
+        if (validate_set(subgrid)) {
             pthread_mutex_lock(&mutex);
-            Sub[x] = 1;
+            Sub[sg] = 1;
             Counter++;
             pthread_mutex_unlock(&mutex);
-        }
-        else {
-            _valid = false;
-            break;
+        } else {
+            isValid = false;
         }
     }
-
-    // Thread state update
+// Thread state update
     pthread_mutex_lock(&mutex);
-    thread_State[index] = _valid ? 1 : 0;
+    thread_State[idx] = isValid ? 1 : 0;
     finished_threads++;
 
-// if all threads are finished, signal the main thread to wake it up
+    // if all threads are finished, signal the main thread to wake it up
     if (finished_threads == TOTAL_THREADS) {
-        Last_Thread_ID = index + 1;
+        Last_Thread_ID = idx + 1;
         pthread_cond_signal(&cond);
     }
     pthread_mutex_unlock(&mutex);
 
-// Let the thread exit
+    // Let the thread exit
     return NULL;
 }
 
 void* col_validator(void* param) {
-    // delay sleep time that happens after thread finshes validatoin
+        // delay sleep time that happens after thread finshes validatoin
     int delay = *(int*)param;
-    bool _valid = true;
-
+    bool isValid = true;
     // Validating columns
     for (int i = 0; i < GRID; i++) {
-        int col[GRID];
+        int column[GRID];
         for (int j = 0; j < GRID; j++) {
-            col[j] = sudoku[j][i];
+            column[j] = Sudoku[j][i];
         }
         // column validation
-        if (grid_validator(col)) {
+        if (validate_set(column)) {
             pthread_mutex_lock(&mutex);
             Col[i] = 1;
             Counter++;
             pthread_mutex_unlock(&mutex);
-        }
-        // if column is invalid, break loop
-        else {
-            _valid = false;
-            break;
+        } else {
+            isValid = false;
         }
         // Sleep for delay time
         sleep(delay);
@@ -121,16 +109,15 @@ void* col_validator(void* param) {
 
     // Thread state update
     pthread_mutex_lock(&mutex);
-    thread_State[TOTAL_THREADS - 1] = _valid ? 1 : 0;
+    thread_State[3] = isValid ? 1 : 0;
     finished_threads++;
-    // if all threads are finished, signal the main thread to wake it up
+        // if all threads are finished, signal the main thread to wake it up
     if (finished_threads == TOTAL_THREADS) {
         Last_Thread_ID = 4;
         pthread_cond_signal(&cond);
     }
     pthread_mutex_unlock(&mutex);
 
- // Thread Exit
+    // Thread Exit
     return NULL;
 }
-
