@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
     {
         // Printing usage if the number of arguments is incorrect
         fprintf(stderr, "Usage: %s <filename> <delay>\n", argv[0]);
-        return EXIT_FAILURE;
+        return 1;
     }
 
     int delay = atoi(argv[2]);
@@ -117,5 +117,5 @@ int main(int argc, char *argv[])
     pthread_cond_destroy(&cond);
 
 // Exit the program
-    return EXIT_SUCCESS;
+    return 0;
 }

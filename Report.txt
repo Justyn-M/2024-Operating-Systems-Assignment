@@ -1,0 +1,76 @@
+Name: Justyn Mahen
+Student Number: 21029112
+
+### Report ###
+
+The following short report will explain how my code has achieved synchronisation when
+accessing shared resources and how threads have accessed them. It will also show some outputs from the test files
+that have been implemented.
+
+## synchronisation
+
+The shared resources in my MSSV program are:
+
+1) Sudoku[GRID][GRID] which is a 2D array that holds the sudoku puzzle grid.
+2) Counter which is a counter that keeps track of the number of valid sudoku rows, cols and subgrids.
+3) Row,Col,Sub[GRID] which are arrays that hold validation values for each row, col and subgrid.
+4) thread_State[TOTAL_THREADS] is again an array but it stores the invalid or valid states of each thread.
+5) finished_threads is another counter that tracks the total number of threads that have fully executed.
+6) Mutex and Cod which are mutex locks and condition variables for the thread synchronisation.
+
+As seen from above, most shared resources are in the form of arrays or counters.
+
+Throughout my program, there are several synchronisation mechanisms that have been implemented to ensure
+that the shared resources are correctly accessed by the 4 threads. The first mechanims are the mutex locks
+which protect shared data that is being accessed simultaneously by the threads. When a thread locks a mutex, other
+threads will have their access blocked from the protected data until the mutex is unlocked. This ensures that there
+will be no race conditions when accessing shared data. Shared resources such as Counter, thread_State, finished_threads, etc,
+can be seen to be protected by the mutex locks I have implemented.
+
+The second mechanism is the condition variable which is used to synchronise threads waiting for conditions in my program
+to be met before they can proceed. An example of this happening would be when the main thread that locks the mutex and checks
+the finished_threads counter and if the counter is lesser than total_threads, the main thread will wait on the
+condition variable. Each child thread also signals condition variable when it has locked the mutex and
+updates finished_threads counter and checks if its the last thread to finish.
+
+The main thread reads the finished_threads and thread_state in order to give the final output. All other threads perform
+the row, column and subgrid validators and updates variables accordingly. The main thread has to wait for all other threads to finish
+before it can print the final output unto the terminal.
+
+## Outputs
+
+./mssv 2_invalid_sudoku.txt 1 output:
+
+Thread ID-1: sub-grid 2, sub-grid 3, are invalid
+Thread ID-2: valid
+Thread ID-3: sub-grid 8, row 9, sub-grid 9, are invalid
+Thread ID-4: column 6, column 8, column 9, are invalid
+There are 19 valid sub-grids, and thus the solution is invalid.
+Thread ID-4 is the last thread.
+
+./mssv 1_invalid_sudoku.txt 1 output:
+
+Thread ID-1: row 1, sub-grid 1, are invalid
+Thread ID-2: valid
+Thread ID-3: sub-grid 7, row 9, are invalid
+Thread ID-4: valid
+There are 23 valid sub-grids, and thus the solution is invalid.
+Thread ID-4 is the last thread.
+
+./mssv 1_valid.txt 1 output:
+
+Thread ID-1: valid
+Thread ID-2: valid
+Thread ID-3: valid
+Thread ID-4: valid
+There are 27 valid sub-grids, and thus the solution is valid.
+Thread ID-4 is the last thread.
+
+./mssv 2_valid.txt 1 output:
+
+Thread ID-1: valid
+Thread ID-2: valid
+Thread ID-3: valid
+Thread ID-4: valid
+There are 27 valid sub-grids, and thus the solution is valid.
+Thread ID-4 is the last thread.

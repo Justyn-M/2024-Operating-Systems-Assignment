@@ -16,7 +16,7 @@ extern int thread_State[TOTAL_THREADS];
 extern int finished_threads;
 
 // Function to validate the grid
-bool validate_set(int *set) {
+bool grid_validator(int *set) {
     bool seen[GRID + 1] = {0};
     for (int i = 0; i < GRID; i++) {
         if (seen[set[i]] || set[i] < 1 || set[i] > GRID)
@@ -34,7 +34,7 @@ void* row_subgrid_validator(void* param) {
 
     // Validating rows
     for (int i = rowStart; i < rowStart + 3; i++) {
-        if (validate_set(Sudoku[i])) {
+        if (grid_validator(Sudoku[i])) {
             pthread_mutex_lock(&mutex);
             Row[i] = 1;
             Counter++;
@@ -59,7 +59,7 @@ void* row_subgrid_validator(void* param) {
             }
         }
         // subgrid validation
-        if (validate_set(subgrid)) {
+        if (grid_validator(subgrid)) {
             pthread_mutex_lock(&mutex);
             Sub[sg] = 1;
             Counter++;
@@ -95,7 +95,7 @@ void* col_validator(void* param) {
             column[j] = Sudoku[j][i];
         }
         // column validation
-        if (validate_set(column)) {
+        if (grid_validator(column)) {
             pthread_mutex_lock(&mutex);
             Col[i] = 1;
             Counter++;

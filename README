@@ -1,0 +1,20 @@
+## Instructions to run program ##
+
+1) Enter 'make clean' into the terminal to remove any previous object files and executables.
+
+2) Enter 'make' into the terminal to compile the program.
+
+3) Enter '/.mssv <input_file> <delay> into terminal.
+
+4) The program will output the results to the terminal.
+
+## Test files
+
+There are 4 test files in total that can be used to test the program.
+There are 2 invalid sudoku test fiales and 2 valid sudoku test files.
+
+Enter the name of the test file as the second argument <input_file> when running the program.
+
+If you are adding your own test files, please ensure the file is in the correct format and that the file is in the same directory as the program.
+Run your test files the same way you would run the provided test files.
+
