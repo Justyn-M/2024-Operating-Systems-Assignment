@@ -18,3 +18,5 @@ Enter the name of the test file as the second argument <input_file> when running
 If you are adding your own test files, please ensure the file is in the correct format and that the file is in the same directory as the program.
 Run your test files the same way you would run the provided test files.
 
+## Results ##
+I received a 93% result for this curtin assignment for the unit 'Operating Systems'
